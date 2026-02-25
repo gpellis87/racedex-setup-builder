@@ -47,10 +47,10 @@ export default function Home() {
       .catch(() => setAiConfig({ aiAvailable: false, provider: null }));
   }, []);
 
-  // When car/track change, show the setup tab immediately
   useEffect(() => {
     if (hasCarAndTrack) {
       setSidebarTab("your_setup");
+      setMobilePanel("chat");
     }
   }, [selectedCar, selectedTrack, hasCarAndTrack]);
 
@@ -190,7 +190,6 @@ export default function Home() {
 
         const data = await res.json();
 
-        // Apply the updated setup
         if (data.updatedSetup) {
           setUpdatedSetup(data.updatedSetup);
           setBaselineSetup(data.baselineSetup || currentSetup);
@@ -266,150 +265,158 @@ export default function Home() {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-[100dvh] flex flex-col overflow-hidden">
       <Header />
 
-      {/* Mobile tabs */}
-      <div className="sm:hidden flex border-b border-racing-border bg-racing-dark">
+      {/* Mobile bottom tab bar */}
+      <div className="sm:hidden flex border-b border-racing-border bg-racing-dark safe-bottom">
         <button
           onClick={() => setMobilePanel("chat")}
-          className={`flex-1 py-2 text-xs font-semibold text-center transition-colors ${
+          className={`flex-1 py-3 text-xs font-semibold text-center transition-colors relative ${
             mobilePanel === "chat"
               ? "text-racing-accent border-b-2 border-racing-accent"
-              : "text-zinc-500"
+              : "text-zinc-500 active:text-zinc-300"
           }`}
         >
           {mode === "guided" ? "Diagnosis" : "Chat"}
         </button>
         <button
-          onClick={() => setMobilePanel("sidebar")}
-          className={`flex-1 py-2 text-xs font-semibold text-center transition-colors ${
+          onClick={() => {
+            setMobilePanel("sidebar");
+            if (!hasCarAndTrack) setSidebarTab("config");
+          }}
+          className={`flex-1 py-3 text-xs font-semibold text-center transition-colors relative ${
             mobilePanel === "sidebar"
               ? "text-racing-accent border-b-2 border-racing-accent"
-              : "text-zinc-500"
+              : "text-zinc-500 active:text-zinc-300"
           }`}
         >
           {hasAppliedChanges ? "Updated Setup" : hasCarAndTrack ? "Setup" : "Select Car"}
+          {hasAppliedChanges && mobilePanel !== "sidebar" && (
+            <span className="absolute top-2 right-[calc(50%-28px)] w-2 h-2 bg-racing-accent rounded-full" />
+          )}
         </button>
       </div>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar */}
+        {/* Sidebar — full width on mobile, fixed 320px on desktop */}
         <aside
-          className={`w-80 border-r border-racing-border bg-racing-dark flex-shrink-0 overflow-y-auto scrollbar-thin ${
-            mobilePanel === "sidebar" ? "block" : "hidden"
-          } sm:block`}
+          className={`${
+            mobilePanel === "sidebar" ? "flex" : "hidden"
+          } sm:flex w-full sm:w-80 border-r border-racing-border bg-racing-dark flex-shrink-0 flex-col overflow-hidden`}
         >
-          <div className="p-4">
-            {/* Sidebar tab navigation */}
-            {hasCarAndTrack && (
-              <div className="flex mb-4 bg-racing-card rounded-lg p-0.5 border border-racing-border">
-                <button
-                  onClick={() => setSidebarTab("config")}
-                  className={`flex-1 py-1.5 text-[11px] font-semibold rounded-md transition-colors ${
-                    sidebarTab === "config"
-                      ? "bg-racing-surface text-zinc-100"
-                      : "text-zinc-500 hover:text-zinc-300"
-                  }`}
-                >
-                  Car & Track
-                </button>
-                <button
-                  onClick={() => setSidebarTab("your_setup")}
-                  className={`flex-1 py-1.5 text-[11px] font-semibold rounded-md transition-colors ${
-                    sidebarTab === "your_setup"
-                      ? "bg-racing-surface text-zinc-100"
-                      : "text-zinc-500 hover:text-zinc-300"
-                  }`}
-                >
-                  Your Setup
-                </button>
-                {hasAppliedChanges && (
+          <div className="flex-1 overflow-y-auto scrollbar-thin">
+            <div className="p-3 sm:p-4">
+              {/* Sidebar tab navigation */}
+              {hasCarAndTrack && (
+                <div className="flex mb-4 bg-racing-card rounded-lg p-0.5 border border-racing-border">
                   <button
-                    onClick={() => setSidebarTab("updated_setup")}
-                    className={`flex-1 py-1.5 text-[11px] font-semibold rounded-md transition-colors relative ${
-                      sidebarTab === "updated_setup"
+                    onClick={() => setSidebarTab("config")}
+                    className={`flex-1 py-2 sm:py-1.5 text-xs font-semibold rounded-md transition-colors ${
+                      sidebarTab === "config"
                         ? "bg-racing-surface text-zinc-100"
                         : "text-zinc-500 hover:text-zinc-300"
                     }`}
                   >
-                    Updated
-                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-racing-accent rounded-full" />
+                    Car & Track
                   </button>
-                )}
-              </div>
-            )}
-
-            {/* Config Tab */}
-            {(sidebarTab === "config" || !hasCarAndTrack) && (
-              <CarTrackSelector
-                selectedCar={selectedCar}
-                selectedTrack={selectedTrack}
-                onCarChange={(id) => {
-                  setSelectedCar(id);
-                  resetSession();
-                }}
-                onTrackChange={(id) => {
-                  setSelectedTrack(id);
-                  resetSession();
-                }}
-              />
-            )}
-
-            {/* Your Setup Tab — editor + current display */}
-            {sidebarTab === "your_setup" && hasCarAndTrack && (
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider mb-3">
-                    Your Current Setup
-                  </h3>
-                  <p className="text-[11px] text-zinc-500 mb-3">
-                    Enter your current in-game values so the advisor knows what to change. Or leave as defaults.
-                  </p>
-                  <SetupEditor
-                    carId={selectedCar!}
-                    currentSetup={currentSetup}
-                    onSetupChange={setCurrentSetup}
-                  />
+                  <button
+                    onClick={() => setSidebarTab("your_setup")}
+                    className={`flex-1 py-2 sm:py-1.5 text-xs font-semibold rounded-md transition-colors ${
+                      sidebarTab === "your_setup"
+                        ? "bg-racing-surface text-zinc-100"
+                        : "text-zinc-500 hover:text-zinc-300"
+                    }`}
+                  >
+                    Your Setup
+                  </button>
+                  {hasAppliedChanges && (
+                    <button
+                      onClick={() => setSidebarTab("updated_setup")}
+                      className={`flex-1 py-2 sm:py-1.5 text-xs font-semibold rounded-md transition-colors relative ${
+                        sidebarTab === "updated_setup"
+                          ? "bg-racing-surface text-zinc-100"
+                          : "text-zinc-500 hover:text-zinc-300"
+                      }`}
+                    >
+                      Updated
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-racing-accent rounded-full" />
+                    </button>
+                  )}
                 </div>
+              )}
 
-                <div className="border-t border-racing-border pt-4">
+              {/* Config Tab */}
+              {(sidebarTab === "config" || !hasCarAndTrack) && (
+                <CarTrackSelector
+                  selectedCar={selectedCar}
+                  selectedTrack={selectedTrack}
+                  onCarChange={(id) => {
+                    setSelectedCar(id);
+                    resetSession();
+                  }}
+                  onTrackChange={(id) => {
+                    setSelectedTrack(id);
+                    resetSession();
+                  }}
+                />
+              )}
+
+              {/* Your Setup Tab */}
+              {sidebarTab === "your_setup" && hasCarAndTrack && (
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2 sm:mb-3">
+                      Your Current Setup
+                    </h3>
+                    <p className="text-[11px] text-zinc-500 mb-3">
+                      Enter your current in-game values so the advisor knows what to change. Or leave as defaults.
+                    </p>
+                    <SetupEditor
+                      carId={selectedCar!}
+                      currentSetup={currentSetup}
+                      onSetupChange={setCurrentSetup}
+                    />
+                  </div>
+
+                  <div className="border-t border-racing-border pt-4">
+                    <SetupDisplay
+                      carId={selectedCar!}
+                      trackId={selectedTrack!}
+                      setupValues={Object.keys(currentSetup).length > 0 ? currentSetup : {}}
+                      hasChanges={false}
+                      onDownloadText={() => handleDownload("text")}
+                      onDownloadJSON={() => handleDownload("json")}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Updated Setup Tab */}
+              {sidebarTab === "updated_setup" && hasCarAndTrack && hasAppliedChanges && (
+                <div className="space-y-4">
                   <SetupDisplay
                     carId={selectedCar!}
                     trackId={selectedTrack!}
-                    setupValues={Object.keys(currentSetup).length > 0 ? currentSetup : {}}
-                    hasChanges={false}
+                    setupValues={updatedSetup}
+                    baselineValues={baselineSetup}
+                    hasChanges={true}
                     onDownloadText={() => handleDownload("text")}
                     onDownloadJSON={() => handleDownload("json")}
                   />
+
+                  <button
+                    onClick={handleAcceptChanges}
+                    className="w-full py-3 sm:py-2.5 rounded-xl border border-green-500/30 bg-green-500/10 text-green-400 font-semibold text-xs hover:bg-green-500/20 active:bg-green-500/30 transition-colors"
+                  >
+                    Accept Changes as New Baseline
+                  </button>
+                  <p className="text-[10px] text-zinc-600 text-center">
+                    This sets the updated values as your current setup so you can keep iterating.
+                  </p>
                 </div>
-              </div>
-            )}
-
-            {/* Updated Setup Tab — shows after diagnosis */}
-            {sidebarTab === "updated_setup" && hasCarAndTrack && hasAppliedChanges && (
-              <div className="space-y-4">
-                <SetupDisplay
-                  carId={selectedCar!}
-                  trackId={selectedTrack!}
-                  setupValues={updatedSetup}
-                  baselineValues={baselineSetup}
-                  hasChanges={true}
-                  onDownloadText={() => handleDownload("text")}
-                  onDownloadJSON={() => handleDownload("json")}
-                />
-
-                <button
-                  onClick={handleAcceptChanges}
-                  className="w-full py-2.5 rounded-xl border border-green-500/30 bg-green-500/10 text-green-400 font-semibold text-xs hover:bg-green-500/20 transition-colors"
-                >
-                  Accept Changes as New Baseline
-                </button>
-                <p className="text-[10px] text-zinc-600 text-center">
-                  This sets the updated values as your current setup so you can keep iterating.
-                </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </aside>
 
@@ -421,21 +428,21 @@ export default function Home() {
         >
           {/* Mode Toggle */}
           {hasCarAndTrack && (
-            <div className="border-b border-racing-border bg-racing-dark/80 backdrop-blur-md px-4 py-2 flex items-center justify-between">
-              <div className="flex bg-racing-card rounded-lg p-0.5 border border-racing-border">
+            <div className="border-b border-racing-border bg-racing-dark/80 backdrop-blur-md px-3 sm:px-4 py-2 flex items-center justify-between gap-2">
+              <div className="flex bg-racing-card rounded-lg p-0.5 border border-racing-border shrink-0">
                 <button
                   onClick={() => setMode("guided")}
-                  className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+                  className={`px-3 sm:px-4 py-1.5 text-[11px] sm:text-xs font-semibold rounded-md transition-colors ${
                     mode === "guided"
                       ? "bg-racing-accent text-white"
                       : "text-zinc-400 hover:text-zinc-200"
                   }`}
                 >
-                  Guided Diagnosis
+                  Guided
                 </button>
                 <button
                   onClick={() => setMode("ai_chat")}
-                  className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-colors flex items-center gap-1.5 ${
+                  className={`px-3 sm:px-4 py-1.5 text-[11px] sm:text-xs font-semibold rounded-md transition-colors flex items-center gap-1 ${
                     mode === "ai_chat"
                       ? "bg-racing-accent text-white"
                       : "text-zinc-400 hover:text-zinc-200"
@@ -443,16 +450,16 @@ export default function Home() {
                 >
                   AI Chat
                   {aiConfig && !aiConfig.aiAvailable && (
-                    <span className="text-[9px] bg-zinc-700 text-zinc-400 px-1 py-0.5 rounded">
+                    <span className="text-[8px] sm:text-[9px] bg-zinc-700 text-zinc-400 px-1 py-0.5 rounded hidden sm:inline">
                       needs key
                     </span>
                   )}
                 </button>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 {mode === "guided" && (
-                  <span className="text-[10px] text-green-400 font-medium flex items-center gap-1">
+                  <span className="text-[10px] text-green-400 font-medium flex items-center gap-1 shrink-0">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
                     Free
                   </span>
@@ -463,10 +470,11 @@ export default function Home() {
                       setSidebarTab("updated_setup");
                       setMobilePanel("sidebar");
                     }}
-                    className="text-[10px] text-racing-accent font-semibold flex items-center gap-1 hover:underline"
+                    className="text-[10px] text-racing-accent font-semibold flex items-center gap-1 hover:underline shrink-0"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-racing-accent animate-pulse" />
-                    View Updated Setup
+                    <span className="hidden sm:inline">View Updated Setup</span>
+                    <span className="sm:hidden">Updated</span>
                   </button>
                 )}
               </div>
@@ -485,12 +493,12 @@ export default function Home() {
                     isLoading={isLoading}
                   />
                 ) : (
-                  <div className="px-4 py-4 space-y-4">
+                  <div className="px-3 sm:px-4 py-4 space-y-4">
                     {messages.map((msg) => (
                       <div key={msg.id} className="animate-fade-in">
                         {msg.role === "user" ? (
                           <div className="flex justify-end">
-                            <div className="max-w-[85%] bg-racing-accent/15 border border-racing-accent/30 rounded-2xl rounded-tr-md px-4 py-3">
+                            <div className="max-w-[90%] sm:max-w-[85%] bg-racing-accent/15 border border-racing-accent/30 rounded-2xl rounded-tr-md px-3 sm:px-4 py-2.5 sm:py-3">
                               <p className="text-sm text-zinc-100 whitespace-pre-wrap">
                                 {msg.content}
                               </p>
@@ -498,17 +506,17 @@ export default function Home() {
                           </div>
                         ) : (
                           <div className="flex justify-start">
-                            <div className="max-w-[90%]">
+                            <div className="max-w-[95%] sm:max-w-[90%]">
                               <div className="flex items-center gap-2 mb-1.5">
-                                <div className="w-6 h-6 rounded-md bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center">
+                                <div className="w-6 h-6 rounded-md bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center shrink-0">
                                   <span className="text-[9px] font-black text-white">RD</span>
                                 </div>
                                 <span className="text-[11px] font-semibold text-racing-muted">
                                   RaceDex Advisor
                                 </span>
                               </div>
-                              <div className="bg-racing-card border border-racing-border rounded-2xl rounded-tl-md px-4 py-3">
-                                <div className="markdown-content text-sm text-zinc-300">
+                              <div className="bg-racing-card border border-racing-border rounded-2xl rounded-tl-md px-3 sm:px-4 py-2.5 sm:py-3 overflow-hidden">
+                                <div className="markdown-content text-sm text-zinc-300 overflow-x-auto">
                                   <MarkdownRenderer content={msg.content} />
                                 </div>
                               </div>
@@ -518,7 +526,7 @@ export default function Home() {
                       </div>
                     ))}
 
-                    {/* Diagnose again section */}
+                    {/* Diagnose again */}
                     <div className="border-t border-racing-border pt-6 mt-6">
                       <h3 className="text-sm font-bold text-zinc-300 mb-3 text-center">
                         Run Another Diagnosis
@@ -535,7 +543,6 @@ export default function Home() {
               </div>
             </div>
           ) : (
-            /* AI Chat Mode */
             <ChatInterface
               messages={messages}
               isLoading={isLoading}
@@ -555,7 +562,7 @@ function MarkdownRenderer({ content }: { content: string }) {
 }
 
 function simpleMarkdownToHtml(md: string): string {
-  let html = escapeHtml(md);
+  let html = md;
 
   // Headings
   html = html.replace(/^### (.+)$/gm, '<h3 class="font-bold text-zinc-100 mt-4 mb-2 text-base">$1</h3>');
@@ -565,19 +572,18 @@ function simpleMarkdownToHtml(md: string): string {
   // Horizontal rules
   html = html.replace(/^---$/gm, '<hr class="border-racing-border my-4" />');
 
-  // Tables
+  // Tables — wrap in scrollable container
   html = html.replace(/^\|(.+)\|$/gm, (match) => {
     const cells = match.split("|").filter(Boolean).map((c) => c.trim());
     if (cells.every((c) => /^[-:]+$/.test(c))) {
       return "<!-- table-sep -->";
     }
     const cellsHtml = cells
-      .map((c) => `<td class="border border-zinc-700 px-3 py-2 text-sm">${inlineFormat(c)}</td>`)
+      .map((c) => `<td class="border border-zinc-700 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm whitespace-nowrap">${inlineFormat(c)}</td>`)
       .join("");
     return `<tr>${cellsHtml}</tr>`;
   });
 
-  // Promote first row before separator to th
   html = html.replace(
     /<tr>([\s\S]*?)<\/tr>\s*<!-- table-sep -->/g,
     (_, cells) => {
@@ -587,17 +593,16 @@ function simpleMarkdownToHtml(md: string): string {
   );
   html = html.replace(/<!-- table-sep -->/g, "");
 
-  // Wrap consecutive table rows
   html = html.replace(
     /(<tr>[\s\S]*?<\/tr>(?:\s*<tr>[\s\S]*?<\/tr>)*)/g,
-    '<table class="w-full border-collapse mb-3">$1</table>',
+    '<div class="overflow-x-auto -mx-1 px-1 mb-3"><table class="w-full border-collapse min-w-[480px]">$1</table></div>',
   );
 
   // Code blocks
-  html = html.replace(/```[\w-]*\n([\s\S]*?)```/g, '<pre class="bg-zinc-900 border border-zinc-700 rounded-lg p-4 mb-3 overflow-x-auto"><code class="text-zinc-300 text-sm">$1</code></pre>');
+  html = html.replace(/```[\w-]*\n([\s\S]*?)```/g, '<pre class="bg-zinc-900 border border-zinc-700 rounded-lg p-3 sm:p-4 mb-3 overflow-x-auto text-xs sm:text-sm"><code class="text-zinc-300">$1</code></pre>');
 
   // Inline code
-  html = html.replace(/`([^`]+)`/g, '<code class="bg-zinc-800 text-orange-300 px-1.5 py-0.5 rounded text-sm font-mono">$1</code>');
+  html = html.replace(/`([^`]+)`/g, '<code class="bg-zinc-800 text-orange-300 px-1 sm:px-1.5 py-0.5 rounded text-xs sm:text-sm font-mono">$1</code>');
 
   // Bold + italic
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong class="text-orange-400 font-semibold">$1</strong>');
@@ -605,18 +610,12 @@ function simpleMarkdownToHtml(md: string): string {
 
   // Bullet lists
   html = html.replace(/^- (.+)$/gm, '<li class="mb-1">$1</li>');
-  html = html.replace(/(<li[\s\S]*?<\/li>\n?)+/g, '<ul class="list-disc pl-6 mb-3">$&</ul>');
+  html = html.replace(/(<li[\s\S]*?<\/li>\n?)+/g, '<ul class="list-disc pl-5 sm:pl-6 mb-3">$&</ul>');
 
-  // Paragraphs — lines that aren't already HTML tags
+  // Paragraphs
   html = html.replace(/^(?!<[a-z/!])((?!<).+)$/gm, '<p class="mb-2 leading-relaxed">$1</p>');
 
   return html;
-}
-
-function escapeHtml(text: string): string {
-  // Only escape angle brackets that aren't part of our markdown syntax
-  // We'll skip full escaping since we control the input (it's from our rules engine or LLM)
-  return text;
 }
 
 function inlineFormat(text: string): string {

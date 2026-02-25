@@ -67,7 +67,7 @@ export default function GuidedDiagnosis({ carId, trackId, onDiagnose, isLoading 
   }
 
   return (
-    <div className="space-y-5 p-4">
+    <div className="space-y-5 p-3 sm:p-4">
       {/* Step 1: Condition */}
       <div>
         <StepLabel step={1} label="How does the car feel?" />
@@ -76,7 +76,7 @@ export default function GuidedDiagnosis({ carId, trackId, onDiagnose, isLoading 
             <button
               key={c.value}
               onClick={() => setCondition(c.value)}
-              className={`text-left px-4 py-3 rounded-xl border transition-all ${
+              className={`text-left px-3 sm:px-4 py-3 sm:py-3 rounded-xl border transition-all active:scale-[0.98] ${
                 condition === c.value
                   ? "border-racing-accent bg-orange-500/10"
                   : "border-racing-border bg-racing-card hover:border-zinc-600"
@@ -100,7 +100,7 @@ export default function GuidedDiagnosis({ carId, trackId, onDiagnose, isLoading 
               <button
                 key={p.value}
                 onClick={() => setPhase(p.value)}
-                className={`text-left px-4 py-2.5 rounded-xl border transition-all ${
+                className={`text-left px-3 sm:px-4 py-3 rounded-xl border transition-all active:scale-[0.98] ${
                   phase === p.value
                     ? "border-racing-accent bg-orange-500/10"
                     : "border-racing-border bg-racing-card hover:border-zinc-600"
@@ -125,7 +125,7 @@ export default function GuidedDiagnosis({ carId, trackId, onDiagnose, isLoading 
               <button
                 key={r.value}
                 onClick={() => setRunLength(r.value)}
-                className={`text-left px-4 py-2.5 rounded-xl border transition-all ${
+                className={`text-left px-3 sm:px-4 py-3 rounded-xl border transition-all active:scale-[0.98] ${
                   runLength === r.value
                     ? "border-racing-accent bg-orange-500/10"
                     : "border-racing-border bg-racing-card hover:border-zinc-600"
@@ -149,7 +149,7 @@ export default function GuidedDiagnosis({ carId, trackId, onDiagnose, isLoading 
               <button
                 key={s.value}
                 onClick={() => setSeverity(s.value)}
-                className={`text-left px-4 py-2.5 rounded-xl border transition-all ${
+                className={`text-left px-3 sm:px-4 py-3 rounded-xl border transition-all active:scale-[0.98] ${
                   severity === s.value
                     ? `${s.color}`
                     : "border-racing-border bg-racing-card hover:border-zinc-600 text-zinc-200"
@@ -168,13 +168,13 @@ export default function GuidedDiagnosis({ carId, trackId, onDiagnose, isLoading 
           <button
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className="flex-1 py-3 rounded-xl bg-racing-accent text-white font-bold text-sm hover:bg-orange-600 transition-colors disabled:opacity-30 glow-pulse"
+            className="flex-1 py-3.5 sm:py-3 rounded-xl bg-racing-accent text-white font-bold text-sm hover:bg-orange-600 active:bg-orange-700 transition-colors disabled:opacity-30 glow-pulse"
           >
             {isLoading ? "Analyzing..." : "Get Setup Changes"}
           </button>
           <button
             onClick={handleReset}
-            className="px-4 py-3 rounded-xl border border-racing-border text-zinc-400 text-sm hover:text-zinc-200 hover:border-zinc-600 transition-colors"
+            className="min-w-[44px] px-4 py-3.5 sm:py-3 rounded-xl border border-racing-border text-zinc-400 text-sm hover:text-zinc-200 hover:border-zinc-600 active:bg-racing-card transition-colors"
           >
             Reset
           </button>
@@ -187,10 +187,10 @@ export default function GuidedDiagnosis({ carId, trackId, onDiagnose, isLoading 
 function StepLabel({ step, label }: { step: number; label: string }) {
   return (
     <div className="flex items-center gap-2">
-      <div className="w-5 h-5 rounded-full bg-racing-accent/20 border border-racing-accent/40 flex items-center justify-center">
-        <span className="text-[10px] font-bold text-racing-accent">{step}</span>
+      <div className="w-6 h-6 sm:w-5 sm:h-5 rounded-full bg-racing-accent/20 border border-racing-accent/40 flex items-center justify-center shrink-0">
+        <span className="text-[10px] sm:text-[10px] font-bold text-racing-accent">{step}</span>
       </div>
-      <span className="text-xs font-semibold text-zinc-300">{label}</span>
+      <span className="text-xs sm:text-xs font-semibold text-zinc-300">{label}</span>
     </div>
   );
 }

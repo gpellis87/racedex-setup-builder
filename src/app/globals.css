@@ -4,14 +4,17 @@
 
 :root {
   --racing-orange: #f97316;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 html {
   color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   @apply bg-racing-darker text-zinc-100 antialiased;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @layer utilities {
@@ -28,6 +31,18 @@ body {
   .scrollbar-thin::-webkit-scrollbar-thumb {
     background: #27272a;
     border-radius: 3px;
+  }
+  .safe-bottom {
+    padding-bottom: var(--safe-bottom);
+  }
+}
+
+/* Prevent iOS zoom on input focus */
+@media (max-width: 639px) {
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px !important;
   }
 }
 
@@ -49,6 +64,7 @@ body {
   animation: fade-in 0.3s ease-out;
 }
 
+/* Markdown content */
 .markdown-content h1,
 .markdown-content h2,
 .markdown-content h3 {
@@ -67,17 +83,22 @@ body {
   @apply bg-zinc-800 text-orange-300 px-1.5 py-0.5 rounded text-sm font-mono;
 }
 .markdown-content pre {
-  @apply bg-zinc-900 border border-zinc-700 rounded-lg p-4 mb-3 overflow-x-auto;
+  @apply bg-zinc-900 border border-zinc-700 rounded-lg p-3 sm:p-4 mb-3 overflow-x-auto;
 }
 .markdown-content pre code {
   @apply bg-transparent text-zinc-300 px-0 py-0;
 }
+
+/* Tables — horizontally scrollable on mobile */
+.markdown-content .table-wrapper {
+  @apply w-full overflow-x-auto -mx-1 px-1 mb-3;
+}
 .markdown-content table {
-  @apply w-full border-collapse mb-3;
+  @apply w-full border-collapse mb-3 min-w-[480px];
 }
 .markdown-content th {
-  @apply border border-zinc-700 bg-zinc-800 px-3 py-2 text-left text-sm font-semibold;
+  @apply border border-zinc-700 bg-zinc-800 px-2 sm:px-3 py-1.5 sm:py-2 text-left text-xs sm:text-sm font-semibold whitespace-nowrap;
 }
 .markdown-content td {
-  @apply border border-zinc-700 px-3 py-2 text-sm;
+  @apply border border-zinc-700 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm whitespace-nowrap;
 }

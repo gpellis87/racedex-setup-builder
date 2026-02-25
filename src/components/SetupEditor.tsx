@@ -42,7 +42,6 @@ export default function SetupEditor({ carId, currentSetup, onSetupChange }: Prop
       try {
         const data = JSON.parse(ev.target?.result as string);
 
-        // Support our own export format
         if (data.parameters && typeof data.parameters === "object") {
           const imported: SetupValues = {};
           for (const [key, info] of Object.entries(data.parameters)) {
@@ -57,7 +56,6 @@ export default function SetupEditor({ carId, currentSetup, onSetupChange }: Prop
           }
         }
 
-        // Support flat key-value format
         if (typeof data === "object" && !Array.isArray(data)) {
           const flat: SetupValues = {};
           for (const [key, val] of Object.entries(data)) {
@@ -78,7 +76,6 @@ export default function SetupEditor({ carId, currentSetup, onSetupChange }: Prop
     };
     reader.readAsText(file);
 
-    // Reset input so the same file can be re-uploaded
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -88,7 +85,7 @@ export default function SetupEditor({ carId, currentSetup, onSetupChange }: Prop
       <div className="flex items-center gap-2">
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="flex-1 px-3 py-2 text-xs font-semibold rounded-lg border border-dashed border-racing-border bg-racing-card hover:border-zinc-500 hover:bg-racing-surface transition-colors text-zinc-400 hover:text-zinc-200"
+          className="flex-1 px-3 py-2.5 sm:py-2 text-xs font-semibold rounded-lg border border-dashed border-racing-border bg-racing-card hover:border-zinc-500 hover:bg-racing-surface active:bg-racing-surface transition-colors text-zinc-400 hover:text-zinc-200"
         >
           <span className="flex items-center justify-center gap-1.5">
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -107,7 +104,7 @@ export default function SetupEditor({ carId, currentSetup, onSetupChange }: Prop
         {hasCustomValues && (
           <button
             onClick={handleReset}
-            className="px-3 py-2 text-xs font-semibold rounded-lg border border-racing-border bg-racing-card hover:border-zinc-500 text-zinc-500 hover:text-zinc-300 transition-colors"
+            className="px-3 py-2.5 sm:py-2 text-xs font-semibold rounded-lg border border-racing-border bg-racing-card hover:border-zinc-500 active:bg-racing-surface text-zinc-500 hover:text-zinc-300 transition-colors"
           >
             Reset
           </button>
@@ -123,7 +120,7 @@ export default function SetupEditor({ carId, currentSetup, onSetupChange }: Prop
       {hasCustomValues && (
         <div className="text-[10px] text-green-400 font-medium flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-          Custom setup loaded — changes will be applied on top of these values
+          Custom setup loaded
         </div>
       )}
 
@@ -139,7 +136,7 @@ export default function SetupEditor({ carId, currentSetup, onSetupChange }: Prop
             <div key={group.group} className="border border-racing-border rounded-lg overflow-hidden">
               <button
                 onClick={() => setExpandedGroup(isExpanded ? null : group.group)}
-                className="w-full flex items-center justify-between px-3 py-2 bg-racing-card hover:bg-racing-surface transition-colors"
+                className="w-full flex items-center justify-between px-3 py-2.5 sm:py-2 bg-racing-card hover:bg-racing-surface active:bg-racing-surface transition-colors min-h-[44px]"
               >
                 <span className="text-xs font-semibold text-zinc-300">{group.group}</span>
                 <div className="flex items-center gap-2">
@@ -158,13 +155,13 @@ export default function SetupEditor({ carId, currentSetup, onSetupChange }: Prop
               </button>
 
               {isExpanded && (
-                <div className="px-3 py-2 space-y-2 bg-racing-darker border-t border-racing-border">
+                <div className="px-3 py-2 space-y-2.5 sm:space-y-2 bg-racing-darker border-t border-racing-border">
                   {group.params.map((param) => {
                     const val = values[param.key] ?? param.defaultValue;
                     const isCustom = currentSetup[param.key] !== undefined && currentSetup[param.key] !== defaults[param.key];
                     return (
                       <div key={param.key} className="flex items-center gap-2">
-                        <label className="text-[11px] text-zinc-400 flex-1 min-w-0 truncate">
+                        <label className="text-[11px] text-zinc-400 flex-1 min-w-0 leading-tight">
                           {param.label}
                         </label>
                         <input
@@ -174,13 +171,13 @@ export default function SetupEditor({ carId, currentSetup, onSetupChange }: Prop
                           max={param.max}
                           step={param.step}
                           onChange={(e) => handleParamChange(param.key, parseFloat(e.target.value) || param.defaultValue)}
-                          className={`w-20 text-right text-xs font-mono px-2 py-1 rounded-md border bg-racing-card focus:outline-none focus:ring-1 focus:ring-racing-accent/30 ${
+                          className={`w-20 text-right text-xs font-mono px-2 py-1.5 sm:py-1 rounded-md border bg-racing-card focus:outline-none focus:ring-1 focus:ring-racing-accent/30 ${
                             isCustom
                               ? "border-racing-accent/40 text-racing-accent"
                               : "border-racing-border text-zinc-300"
                           }`}
                         />
-                        <span className="text-[10px] text-zinc-600 w-10 text-right">{param.unit}</span>
+                        <span className="text-[10px] text-zinc-600 w-10 text-right shrink-0">{param.unit}</span>
                       </div>
                     );
                   })}
@@ -192,7 +189,7 @@ export default function SetupEditor({ carId, currentSetup, onSetupChange }: Prop
       </div>
 
       <p className="text-[10px] text-zinc-600 text-center">
-        Edit values to match your current in-game setup, or upload a previously exported .json file.
+        Edit values to match your in-game setup, or upload a .json file.
       </p>
     </div>
   );

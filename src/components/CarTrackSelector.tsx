@@ -34,7 +34,7 @@ export default function CarTrackSelector({
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 sm:space-y-4">
       {/* Car Selection */}
       <div>
         <label className="block text-xs font-semibold text-racing-muted uppercase tracking-wider mb-2">
@@ -45,7 +45,7 @@ export default function CarTrackSelector({
             <button
               key={car.id}
               onClick={() => onCarChange(car.id)}
-              className={`text-left px-3 py-2.5 rounded-lg border transition-all ${
+              className={`text-left px-3 py-3 sm:py-2.5 rounded-lg border transition-all active:scale-[0.98] ${
                 selectedCar === car.id
                   ? "border-racing-accent bg-orange-500/10 text-zinc-100"
                   : "border-racing-border bg-racing-card hover:border-zinc-600 text-zinc-400 hover:text-zinc-200"
@@ -67,18 +67,18 @@ export default function CarTrackSelector({
         <label className="block text-xs font-semibold text-racing-muted uppercase tracking-wider mb-2">
           Select Track
         </label>
-        <div className="space-y-3 max-h-[50vh] overflow-y-auto scrollbar-thin pr-1">
+        <div className="space-y-3 max-h-[50vh] sm:max-h-[50vh] overflow-y-auto scrollbar-thin pr-1">
           {Object.entries(tracksByType).map(([type, typeTracks]) => (
             <div key={type}>
               <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 mb-1.5 px-1">
                 {trackTypeLabels[type] ?? type}
               </div>
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 {typeTracks.map((track) => (
                   <button
                     key={track.id}
                     onClick={() => onTrackChange(track.id)}
-                    className={`w-full text-left px-3 py-2 rounded-lg border transition-all ${
+                    className={`w-full text-left px-3 py-2.5 sm:py-2 rounded-lg border transition-all active:scale-[0.98] min-h-[44px] ${
                       selectedTrack === track.id
                         ? "border-racing-accent bg-orange-500/10 text-zinc-100"
                         : "border-transparent hover:border-zinc-700 text-zinc-400 hover:text-zinc-200"
